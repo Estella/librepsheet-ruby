@@ -31,15 +31,15 @@ describe Repsheet::Connection do
     end
 
     it 'raises an exception if no actor is provided' do
-      expect {
+      expect do
         conn.flag(list: :whitelist)
-      }.to raise_error(Repsheet::Exception, 'Must supply an actor')
+      end.to raise_error(Repsheet::Exception, 'Must supply an actor')
     end
 
     it 'raises an exception if no list is provided' do
-      expect {
+      expect do
         conn.flag(actor: '1.1.1.1')
-      }.to raise_error(Repsheet::Exception, 'Must supply a list')
+      end.to raise_error(Repsheet::Exception, 'Must supply a list')
     end
   end
 

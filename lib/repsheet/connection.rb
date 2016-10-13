@@ -1,5 +1,3 @@
-require 'redis'
-
 module Repsheet
   class Connection
     attr_accessor :host, :port, :connection
@@ -11,28 +9,28 @@ module Repsheet
     end
 
     def flag(options = {})
-      raise Repsheet::Exception.new("Must supply an actor") if options[:actor].nil?
-      raise Repsheet::Exception.new("Must supply a list") if options[:list].nil?
+      raise Repsheet::Exception, 'Must supply an actor' if options[:actor].nil?
+      raise Repsheet::Exception, 'Must supply a list' if options[:list].nil?
 
-      reason = options[:reason] || "default"
+      reason = options[:reason] || 'default'
       type = options[:type] || :ip
       @connection.set("#{options[:actor]}:repsheet:#{type}:#{options[:list]}ed", reason)
     end
 
     def lookup(options = {})
-      if reason = get(actor: options[:actor], list: :whitelist, type: options[:type])
-        return {status: :whitelisted, reason: reason}
+      get(actor: options[:actor], list: :whitelist, type: options[:type]).andand.tap do |reason|
+        return { status: :whitelisted, reason: reason }
       end
 
-      if reason = get(actor: options[:actor], list: :blacklist, type: options[:type])
-        return {status: :blacklisted, reason: reason}
+      get(actor: options[:actor], list: :blacklist, type: options[:type]).andand.tap do |reason|
+        return { status: :blacklisted, reason: reason }
       end
 
-      if reason = get(actor: options[:actor], list: :mark, type: options[:type])
-        return {status: :marked, reason: reason}
+      get(actor: options[:actor], list: :mark, type: options[:type]).andand.tap do |reason|
+        return { status: :marked, reason: reason }
       end
 
-      {status: :ok}
+      { status: :ok }
     end
 
     private

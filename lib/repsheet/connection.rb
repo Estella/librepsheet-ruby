@@ -15,7 +15,8 @@ module Repsheet
       raise Repsheet::Exception.new("Must supply a list") if options[:list].nil?
 
       reason = options[:reason] || "default"
-      @connection.set("#{options[:actor]}:repsheet:ip:#{options[:list]}ed", reason)
+      type = options[:type] || :ip
+      @connection.set("#{options[:actor]}:repsheet:#{type}:#{options[:list]}ed", reason)
     end
 
     def lookup(options = {})
@@ -37,7 +38,8 @@ module Repsheet
     private
 
     def get(options = {})
-      @connection.get("#{options[:actor]}:repsheet:ip:#{options[:list]}ed")
+      type = options[:type] || :ip
+      @connection.get("#{options[:actor]}:repsheet:#{type}:#{options[:list]}ed")
     end
   end
 end

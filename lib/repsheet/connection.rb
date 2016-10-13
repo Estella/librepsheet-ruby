@@ -11,14 +11,27 @@ module Repsheet
     end
 
     def flag(options = {})
-      @connection.set("#{options[:actor]}:repsheet:ip:#{options[:list]}ed", options[:reason])
+      raise Repsheet::Exception.new("Must supply an actor") if options[:actor].nil?
+      raise Repsheet::Exception.new("Must supply a list") if options[:list].nil?
+
+      reason = options[:reason] || "default"
+      @connection.set("#{options[:actor]}:repsheet:ip:#{options[:list]}ed", reason)
     end
 
     def lookup(options = {})
-      return :whitelisted if get(actor: options[:actor], list: :whitelist, type: options[:type])
-      return :blacklisted if get(actor: options[:actor], list: :blacklist, type: options[:type])
-      return :marked if get(actor: options[:actor], list: :mark, type: options[:type])
-      :ok
+      if reason = get(actor: options[:actor], list: :whitelist, type: options[:type])
+        return {status: :whitelisted, reason: reason}
+      end
+
+      if reason = get(actor: options[:actor], list: :blacklist, type: options[:type])
+        return {status: :blacklisted, reason: reason}
+      end
+
+      if reason = get(actor: options[:actor], list: :mark, type: options[:type])
+        return {status: :marked, reason: reason}
+      end
+
+      {status: :ok}
     end
 
     private
